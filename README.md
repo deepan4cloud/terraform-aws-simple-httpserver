@@ -54,8 +54,8 @@
 ***
 ## Prerequisite:
 
-    1) Terraform installed
-    2) AWS_Access_key & AWS_secret_access_key passed on as environment variables.
+    1) Terraform installed - Please follow https://learn.hashicorp.com/tutorials/terraform/install-cli to get it installed.
+    2) AWS_Access_Key & AWS_Secret_Access_Key passed on as environment variables using "aws configure" (Best practice)
 
 ## How to Use:
 
