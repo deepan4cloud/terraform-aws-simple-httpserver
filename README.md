@@ -70,5 +70,5 @@
     Output block will show below outputs:
     ex:
     Outputs:
-        alb-dns = "ss-alb-2119877894.us-east-1.elb.amazonaws.com" -> Use this DNS name to access the web page. Give some ~3 mins for target's to become healthy.
-        public_ip = "107.20.96.243,54.225.16.22" -> Use these IP's to access the EC2 instance with the key_pair downloaded.
+        alb-dns = "ss-alb-XXXXXXXXX.us-east-1.elb.amazonaws.com" -> Use this DNS name to access the web page. Give some ~3 mins for target's to become healthy.
+        public_ip = "1XX.XX.96.243,XX.XXX.16.22" -> Use these IP's to access the EC2 instance with the key_pair downloaded.
