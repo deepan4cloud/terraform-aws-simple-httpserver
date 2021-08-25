@@ -33,6 +33,10 @@ provider "aws" {
   region = var.region
 }
 
+locals {
+  webserver_port_no = var.http_port
+}
+
 ## Using existing VPC - default VPC ##
 
 data "aws_vpc" "default" {}
@@ -102,22 +106,22 @@ resource "aws_security_group" "webserver-sg" {
 
 ## Creating Application LoadBalancer - ALB ##
 
-resource "aws_alb" "ss-alb" {
-  name            = "ss-alb"
+resource "aws_alb" "alb" {
+  name            = "${var.appname}-alb"
   subnets         = aws_default_subnet.pub_subnet-.*.id
   security_groups = [aws_security_group.alb-sg.id]
 
   tags = {
-    Name = "Application Loadbalancer for SS"
+    Name = "Application Loadbalancer for ${var.appname}"
   }
 }
 
 ## Creating Application LoadBalancer Listener ##
 
 resource "aws_lb_listener" "alb_listener" {
-  load_balancer_arn = aws_alb.ss-alb.arn
+  load_balancer_arn = aws_alb.alb.arn
   port              = var.http_port
-  protocol          = "HTTP"
+  protocol          = var.http_protocol
 
   default_action {
     type             = "forward"
@@ -128,9 +132,9 @@ resource "aws_lb_listener" "alb_listener" {
 ## Creating Application LoadBalancer Target Group ##
 
 resource "aws_lb_target_group" "alb-web-tg" {
-  name     = "ss-alb-tg"
+  name     = "${var.appname}-alb-tg"
   port     = var.http_port
-  protocol = "HTTP"
+  protocol = var.http_protocol
   vpc_id   = data.aws_vpc.default.id
   stickiness {
     type            = "lb_cookie"
@@ -139,17 +143,17 @@ resource "aws_lb_target_group" "alb-web-tg" {
   }
   health_check {
     enabled             = true
-    interval            = 30 # 300
+    interval            = 30
     path                = "/"
     port                = "traffic-port"
-    protocol            = "HTTP"
-    timeout             = 5     # 120
-    healthy_threshold   = 5     # 2
-    unhealthy_threshold = 2     # 2
-    matcher             = "200" # "200"
+    protocol            = var.http_protocol
+    timeout             = 5
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
+    matcher             = "200"
   }
   tags = {
-    Name = "ss-alb-tg"
+    Name = "${var.appname}-alb-tg"
   }
 }
 
@@ -158,7 +162,7 @@ resource "aws_lb_target_group" "alb-web-tg" {
 resource "aws_lb_target_group_attachment" "alb-web-tg-attachment" {
   target_group_arn = aws_lb_target_group.alb-web-tg.arn
   count            = length(var.availability_zones)
-  target_id        = element(aws_instance.ss-instance-.*.id, count.index)
+  target_id        = element(aws_instance.instance-.*.id, count.index)
   port             = var.http_port
 }
 
@@ -186,7 +190,7 @@ data "aws_ami" "aws-linux" {
 
 ## Creating EC2 Instances in each AZ based on counts ##
 
-resource "aws_instance" "ss-instance-" {
+resource "aws_instance" "instance-" {
   ami                         = data.aws_ami.aws-linux.id
   associate_public_ip_address = true
   count                       = length(var.availability_zones)
@@ -200,7 +204,7 @@ resource "aws_instance" "ss-instance-" {
   user_data = data.cloudinit_config.web.rendered
 
   tags = {
-    Name = "ss-instance-${count.index}"
+    Name = "${var.appname}-instance-${count.index}"
   }
 }
 
@@ -249,7 +253,6 @@ locals {
 })}
   END
 }
-
 data "cloudinit_config" "web" {
   gzip          = false
   base64_encode = false
@@ -260,7 +263,7 @@ data "cloudinit_config" "web" {
     content      = local.cloud_config_config
   }
 
-    part {
+  part {
     content_type = "text/cloud-config"
     filename     = "index.html"
     content      = local.cloud_config_config
@@ -274,7 +277,7 @@ data "cloudinit_config" "web" {
       mkdir /var/www/html/
       sudo yum install python38 -y
       sudo alternatives --set python /usr/bin/python3.8
-      cd /var/www/html/ && sudo python3 webserver.py &
+      cd /var/www/html/ && sudo python3 webserver.py ${local.webserver_port_no} &
     EOF
-  }
+  } 
 }
