@@ -13,10 +13,10 @@
 # }
 
 output "public_ip" {
-value = "${join(",", aws_instance.ss-instance-.*.public_ip)}"
+value = "${join(",", aws_instance.instance-.*.public_ip)}"
 }
 
 output "alb-dns" {
   description = "Use this DNS to access the Webpage."
-  value = aws_alb.ss-alb.dns_name
+  value = aws_alb.alb.dns_name
 }
