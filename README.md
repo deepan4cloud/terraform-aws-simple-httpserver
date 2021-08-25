@@ -12,7 +12,7 @@
 * [main.tf](https://github.com/deepan4cloud/terraform-aws-simple-httpserver/blob/master/main.tf) - Launches EC2 instances, security groups, Application loadbalancer, Loadbalancer Target Group and User-data to launch Python webserver
 * [variables.tf](https://github.com/deepan4cloud/terraform-aws-simple-httpserver/blob/master/variables.tf) - Used by other files, sets default AWS region, calculates availability zones, etc.
 * [terraform.tfvars](https://github.com/deepan4cloud/terraform-aws-simple-httpserver/blob/master/terraform.tfvars) - Actual variable file with user inputs. Terraform will provision the resources based on these variables. Please update as you wish.
-* [webserver.py](webserver.py) - Python code to run HTTP.Server, running in port # 80.
+* [webserver.py](webserver.py) - Python code to run HTTP.Server. Port will be based on "http_port" variable input in tfvars.
 * [index.html](https://github.com/deepan4cloud/terraform-aws-simple-httpserver/blob/master/index.html) - Simple web page to load when python HTTP server runs.
 * [outputs.tf](https://github.com/deepan4cloud/terraform-aws-simple-httpserver/blob/master/outputs.tf) - It will fetch the ALB DNS name to access the web page along with EC2 instance Public_ip to access over ssh.
 
